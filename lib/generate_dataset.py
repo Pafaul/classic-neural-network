@@ -9,4 +9,6 @@ def sum_of_squares(inputs):
 def generate_dataset(func, *inputs):
     input_data = itertools.product(*inputs)
     for input_x in input_data:
-        yield [input_x, func(input_x)]
+        value = func(input_x)
+        if value <= 1:
+            yield [input_x, func(input_x)]

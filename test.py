@@ -37,10 +37,21 @@ def layer_test():
 def network_test():
     print('Network test')
     s = Sigmoid()
-    network = NeuralNetwork([2, 2, 3, 1], s)
+    network = NeuralNetwork([2, 2, 3, 1], s, 0.1)
     network.run(np.array([[2], [2]]))
     print(str(network))
     for layer in network.layers:
         print(str(layer))
 
-network_test()
+def full_test():
+    print('Network run test')
+    s = Sigmoid()
+    network = NeuralNetwork([2,2,1], s, 0.1)
+    print(str(network))
+    for _ in range(10000):
+        network.run(np.array([[-10.], [-10.]]))
+        print(network.output)
+        network.correction(np.array([1]))
+
+
+full_test()
