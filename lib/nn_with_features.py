@@ -45,6 +45,10 @@ class Neuron(CalculationUnit):
         self.local_gradient = self.calculate_derivative()*value
         return self.local_gradient
 
+    def set_weights(self, new_weights):
+        self.weights = np.copy(new_weights)
+        return self.weights
+
 class Layer(CalculationUnit):
     def __init__(self, input_size: int, output_size: int, activation_function: ActivationFunction, output_layer = False):
         self.neurons = [Neuron(input_size+1, activation_function) for x in range(output_size)]
@@ -146,10 +150,19 @@ class NeuralNetwork(CalculationUnit):
 
     def dump_net_to_file(self, filename='network_structure.net'):
         content = ''
-        content += ' '.join([str(x) for x in self.neural_network_structure]) + '\n'
+        content += ' '.join(self.neural_network_structure) + '\n'
         for layer in self.layers:
             for neuron in layer.neurons:
                 content += ' '.join([str(x) for x in neuron.weights]) + '\n'
 
         with open(filename, 'w') as f:
             f.write(content)
+
+    def recreate_net(self, filename):
+        new_network = None
+        lines = None
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+        
+        network_structure = list(int(x) for x in lines[0].split(' '))
+        

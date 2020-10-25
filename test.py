@@ -1,6 +1,8 @@
 import numpy as np
-from lib.activation_function import Sigmoid
-from lib.generate_dataset import generate_dataset,sum_of_squares
+import matplotlib.pyplot as plt
+
+from lib.activation_function import Sigmoid,LeakyReLU,SoftPlus,Equal
+from lib.generate_dataset import generate_dataset,sum_of_squares,linear_combination
 from lib.nn import Neuron
 from lib.nn import Layer
 from lib.nn import NeuralNetwork
@@ -46,12 +48,14 @@ def network_test():
 def full_test():
     print('Network run test')
     s = Sigmoid()
-    network = NeuralNetwork([2,2,1], s, 0.1)
+    leaky = LeakyReLU()
+    eq = Equal()
+    network = NeuralNetwork([1,2,1], s, 1)
     print(str(network))
     for _ in range(10000):
-        network.run(np.array([[-10.], [-10.]]))
+        network.run(np.array([[10.0]]))
         print(network.output)
-        network.correction(np.array([1]))
+        network.correction(np.array([.9]))
 
 
 full_test()
