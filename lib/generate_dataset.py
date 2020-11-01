@@ -10,9 +10,14 @@ def linear_combination(inputs):
     return y
 
 
-def generate_dataset(func, *inputs):
+def generate_dataset(func, *inputs, randomize=True):
     input_data = itertools.product(*inputs)
-    for input_x in sorted(input_data, key=lambda k: random.random()):
+    used_data = None
+    if randomize == True:
+        used_data = sorted(input_data, key=lambda k: random.random())
+    else:
+        used_data = input_data
+    for input_x in used_data:
     # for input_x in input_data:
         value = func(input_x)
         if value <= 1:

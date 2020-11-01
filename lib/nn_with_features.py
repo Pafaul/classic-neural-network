@@ -12,7 +12,7 @@ class CalculationUnit:
         pass
 
 class Neuron(CalculationUnit):
-    def __init__(self, input_size: int, activation_function: ActivationFunction):
+    def __init__(self, input_size: int, activation_function=None):
         self.input_size = input_size
         self.activation_function = activation_function
         self.input = np.zeros([self.input_size], 'float64')
@@ -49,8 +49,12 @@ class Neuron(CalculationUnit):
         self.weights = np.copy(new_weights)
         return self.weights
 
+    def set_activation_function(self, activation_function: ActivationFunction):
+        self.activation_function = activation_function
+
+
 class Layer(CalculationUnit):
-    def __init__(self, input_size: int, output_size: int, activation_function: ActivationFunction, output_layer = False):
+    def __init__(self, input_size: int, output_size: int, activation_function=None, output_layer = False):
         self.neurons = [Neuron(input_size+1, activation_function) for x in range(output_size)]
         self.input_size = input_size
         self.output_size = output_size
@@ -65,6 +69,10 @@ class Layer(CalculationUnit):
         description_string += 'Layer neuron count: ' + str(len(self.neurons)) + '\n'
         description_string += 'Layer output: ' + '\n' + str(self.output)
         return description_string
+
+    def set_activation_function(self, activation_function: ActivationFunction):
+        for neuron in self.neurons:
+            neuron.set_activation_function(activation_function)
 
     def mark_as_output_layer(self):
         self.output_layer = True
@@ -98,7 +106,7 @@ class Layer(CalculationUnit):
 
 
 class NeuralNetwork(CalculationUnit):
-    def __init__(self, neural_network_structure: list, activation_function: ActivationFunction, learning_rate: float):
+    def __init__(self, neural_network_structure: list, activation_function=None, learning_rate=0.0):
         self.neural_network_structure = neural_network_structure
 
         self.layers = []
@@ -125,6 +133,13 @@ class NeuralNetwork(CalculationUnit):
         description_string += 'Network input: ' + str(self.input) + '\n'
         description_string += 'Network output: ' + str(self.output)
         return description_string
+
+    def set_activation_function(self, activation_function: ActivationFunction):
+        for layer in self.layers:
+            layer.set_activation_function(activation_function)
+
+    def set_learning_rate(self, learning_rate: float):
+        self.learning_rate = learning_rate
 
     def run(self, input_value: np.array):
         self.input = np.copy(input_value)
@@ -159,10 +174,24 @@ class NeuralNetwork(CalculationUnit):
             f.write(content)
 
     def recreate_net(self, filename):
+        def iterator(iterable: list):
+            for item in iterable:
+                yield item
+
+        def get_weights_from_line(line):
+            return [float(x) for x in line.strip().split(' ')]
+
         new_network = None
         lines = None
         with open(filename, 'r') as f:
             lines = f.readlines()
         
         network_structure = list(int(x) for x in lines[0].split(' '))
-        
+        weights = iterator(lines[1:])
+
+        new_network = NeuralNetwork(network_structure)
+        for layer in new_network.layers:
+            for neuron in layer.neurons:
+                neuron.set_weights(np.array(get_weights_from_line(next(weights)), 'float64'))
+
+        return new_network

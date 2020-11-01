@@ -153,3 +153,26 @@ class NeuralNetwork(CalculationUnit):
 
         with open(filename, 'w') as f:
             f.write(content)
+
+    def recreate_net(self, filename):
+        def iterator(iterable: list):
+            for item in iterable:
+                yield item
+
+        def get_weights_from_line(line):
+            return [float(x) for x in line.strip().split(' ')]
+
+        new_network = None
+        lines = None
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+        
+        network_structure = list(int(x) for x in lines[0].split(' '))
+        weights = iterator(lines[1:])
+
+        new_network = NeuralNetwork(network_structure)
+        for layer in new_network.layers:
+            for neuron in layer.neurons:
+                neuron.set_weights(np.array(get_weights_from_line(next(weights)), 'float64'))
+
+        return new_network
